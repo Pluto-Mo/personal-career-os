@@ -115,7 +115,8 @@ personal-career-os/
 │   ├── _index.md        ← 经历总索引：标签 + 完整度，agent 投递时先读这里
 │   ├── basics.md / links.md / preferences.md
 │   └── experiences/     ← 一段经历一个文件：事实清单 + 现成表述 + 待挖掘
-├── methodology/         ← 方法论：简历方法论 / 风格库（按企业性质）/ 岗位速查 / 挖掘问题库
+│       └── _TEMPLATE.md ← 格式模板（agent 参考用，不要删除）
+├── methodology/         ← 方法论：简历方法论 / 风格库（按企业性质）/ 岗位速查（12 个岗位规范）/ 挖掘问题库
 ├── workflows/           ← 三大工作流的执行手册：apply（投递）/ intake（沉淀）/ dig（深挖）
 ├── template/resume.html ← 唯一简历模板 = 你的标准版简历（A4 一页，自带超页警告）
 ├── scripts/             ← render.ps1 / render.sh：HTML → PDF + PNG + 一页硬校验
