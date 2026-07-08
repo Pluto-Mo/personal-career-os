@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<!--
+  简历模板 + 标准版内容
+  ─────────────────────────────────────────────────
+  · 本文件双重身份：排版模板 + 你的「标准版简历」。首次建库后让 agent 用你的真实内容替换示例内容。
+  · 硬约束：一页 A4。改完必须跑 scripts/render.ps1（Windows）或 scripts/render.sh（macOS/Linux）验证页数。
+  · 在浏览器直接打开可预览：内容超出一页时顶部会出现红色警告条（打印/导出时不显示）。
+  · 内容红线：每个字都要能在 profile/ 的事实清单里找到依据。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>张三 - 简历（示例）</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #fff; }
+  body {
+    font-family: "Microsoft YaHei", "微软雅黑", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    color: #222;
+    font-size: 10.5pt;
+    line-height: 1.55;
+  }
+  .page {
+    position: relative;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 11mm 14mm 10mm;
+  }
+  /* ── 页眉 ── */
+  .name { text-align: center; font-size: 20pt; font-weight: 700; letter-spacing: 2px; }
+  .contact { text-align: center; font-size: 9.5pt; color: #444; margin-top: 1mm; }
+  .contact span + span::before { content: "｜"; color: #999; margin: 0 1.5mm; }
+  /* ── 区块 ── */
+  section { margin-top: 5.5mm; }
+  h2 {
+    font-size: 12pt; font-weight: 700; letter-spacing: 1px;
+    border-bottom: 1.6px solid #333;
+    padding-bottom: 1.2mm; margin-bottom: 2.4mm;
+  }
+  /* ── 条目 ── */
+  .entry { margin-bottom: 2.8mm; }
+  .entry:last-child { margin-bottom: 0; }
+  .entry-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .entry-title { font-weight: 700; }
+  .entry-role { color: #333; }
+  .entry-role::before { content: "｜"; color: #999; margin: 0 1mm; }
+  .entry-date { color: #555; font-size: 9.5pt; white-space: nowrap; }
+  ul { list-style: none; margin-top: 0.8mm; }
+  li { padding-left: 4mm; position: relative; margin-bottom: 0.6mm; text-align: justify; }
+  li::before { content: "•"; position: absolute; left: 0.8mm; color: #333; }
+  /* ── 技能区（键值行） ── */
+  .kv { margin-bottom: 0.8mm; text-align: justify; }
+  .kv b { font-weight: 700; }
+  /* ── 一页纸自检（仅屏幕预览可见） ── */
+  #overflow-warn {
+    display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 9;
+    background: #c0392b; color: #fff; font-size: 12px; padding: 6px 12px; text-align: center;
+  }
+  .page-limit-line {
+    position: absolute; left: 0; right: 0; top: 297mm;
+    border-top: 1px dashed #c0392b; z-index: 8;
+  }
+  .page-limit-line::after {
+    content: "▲ A4 一页边界"; color: #c0392b; font-size: 9px; position: absolute; right: 2mm; bottom: 1px;
+  }
+  @media print {
+    #overflow-warn, .page-limit-line { display: none !important; }
+  }
+  /* 导出图片时（URL 带 ?clean）同样隐藏辅助元素 */
+  .clean #overflow-warn, .clean .page-limit-line { display: none !important; }
+</style>
+</head>
+<body>
+<script>if (location.search.indexOf('clean') >= 0) document.documentElement.className += ' clean';</script>
+<div id="overflow-warn"></div>
+<div class="page">
+  <div class="page-limit-line"></div>
+
+  <header>
+    <div class="name">张三</div>
+    <div class="contact"><span>138-0000-0000（微信同号）</span><span>zhangsan@example.com</span></div>
+  </header>
+
+  <section>
+    <h2>教育背景</h2>
+    <div class="entry">
+      <div class="entry-head">
+        <div><span class="entry-title">某某大学</span><span class="entry-role">管理学学士 · 信息管理</span></div>
+        <div class="entry-date">2023/09 – 2027/07</div>
+      </div>
+      <div class="kv"><b>GPA：</b>86/100（前 15%）&nbsp;&nbsp;<b>相关课程：</b>统计学、数据库原理、运营管理</div>
+      <div class="kv"><b>奖项证书：</b>校级奖学金 ×2</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>实习经历</h2>
+    <div class="entry">
+      <div class="entry-head">
+        <div><span class="entry-title">某电商科技公司</span><span class="entry-role">数据分析实习生</span></div>
+        <div class="entry-date">2025/07 – 2025/12</div>
+      </div>
+      <ul>
+        <li>维护 12 张核心业务报表（SQL + Excel），覆盖运营、市场 2 个团队的日常决策数据需求。</li>
+        <li>独立完成家居品类流失专题分析：处理 3 个月约 200 万条订单数据，定位复购率下滑的 2 个主因，结论被采纳并落地为优惠券策略调整。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>实践与竞赛</h2>
+    <div class="entry">
+      <div class="entry-head">
+        <div><span class="entry-title">某商业数据分析大赛 · 省级二等奖</span><span class="entry-role">队长</span></div>
+        <div class="entry-date">2025/03 – 2025/05</div>
+      </div>
+      <ul>
+        <li>带领 4 人团队完成门店选址分析：整合公开人口与商圈数据，用回归模型输出选址建议报告并完成路演。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>技能与证书</h2>
+    <div class="kv"><b>技能：</b>SQL（多表 JOIN、窗口函数）、Excel 数据透视表、Python 基础（数据清洗）。</div>
+    <div class="kv"><b>证书：</b>计算机二级</div>
+    <div class="kv"><b>语言：</b>通过大学英语四、六级</div>
+  </section>
+
+</div>
+<script>
+  // 一页纸自检：仅浏览器预览用，打印/PDF 不显示
+  window.addEventListener('load', function () {
+    var page = document.querySelector('.page');
+    var pxPerMm = page.offsetWidth / 210;
+    var overflowMm = (page.scrollHeight - 297 * pxPerMm) / pxPerMm;
+    if (overflowMm > 1) {
+      var w = document.getElementById('overflow-warn');
+      w.style.display = 'block';
+      w.textContent = '⚠ 内容超出 A4 一页约 ' + overflowMm.toFixed(0) + ' mm，请删减后再导出';
+    }
+  });
+</script>
+</body>
+</html>

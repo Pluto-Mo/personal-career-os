@@ -1,0 +1,13 @@
+# 临时目录
+tmp/
+
+# 模板的渲染产物（可随时用 scripts/render.ps1 或 render.sh 重新生成）
+template/*.pdf
+template/*.png
+
+# Office 锁文件
+~$*
+
+# 系统文件
+Thumbs.db
+.DS_Store
