@@ -19,7 +19,7 @@ git clone https://github.com/Pluto-Mo/personal-career-os.git
 cd personal-career-os
 
 # 2. 启动你的 agent（支持 AGENTS.md 规范的任意 agent）
-# claude / codex / cursor ...
+# claude / codex / workbuddy ...
 
 # 3. 对 agent 说：「帮我建库」，并粘贴你的简历
 # 它会提取事实、追问细节、沉淀进 profile/
