@@ -59,7 +59,7 @@ check_file() {
         # 检查手机号
         if echo "$content" | grep -qE '\b1[3-9][0-9]{9}\b'; then
             echo "  [错误] $rel_path: 发现手机号"
-            ((ERROR_COUNT++))
+            ((ERROR_COUNT+=1))
             has_issues=true
             if [ "$VERBOSE" = true ]; then
                 echo "$content" | grep -nE '\b1[3-9][0-9]{9}\b' | head -3 | sed 's/^/    /'
@@ -72,7 +72,7 @@ check_file() {
             real_emails=$(echo "$content" | grep -oE '\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b' | grep -vE 'example\.com|test\.com|demo\.com|placeholder' || true)
             if [ -n "$real_emails" ]; then
                 echo "  [警告] $rel_path: 疑似真实邮箱"
-                ((WARNING_COUNT++))
+                ((WARNING_COUNT+=1))
                 has_issues=true
                 if [ "$VERBOSE" = true ]; then
                     echo "$real_emails" | head -3 | sed 's/^/    /'
@@ -83,7 +83,7 @@ check_file() {
         # 检查身份证
         if echo "$content" | grep -qE '\b[0-9]{17}[0-9Xx]\b'; then
             echo "  [错误] $rel_path: 发现身份证号"
-            ((ERROR_COUNT++))
+            ((ERROR_COUNT+=1))
             has_issues=true
         fi
 
@@ -93,7 +93,7 @@ check_file() {
             potential_cards=$(echo "$content" | grep -oE '\b[0-9]{16,19}\b' | head -1 || true)
             if [ -n "$potential_cards" ]; then
                 echo "  [警告] $rel_path: 疑似银行卡号（16-19位数字）"
-                ((WARNING_COUNT++))
+                ((WARNING_COUNT+=1))
                 has_issues=true
             fi
         fi
@@ -121,11 +121,11 @@ for path in "${CHECK_PATHS[@]}"; do
                         ;;
                 esac
                 check_file "$file"
-                ((FILES_CHECKED++))
+                ((FILES_CHECKED+=1))
             done < <(find "$path" -type f -print0)
         elif [ -f "$path" ]; then
             check_file "$path"
-            ((FILES_CHECKED++))
+            ((FILES_CHECKED+=1))
         fi
     fi
 done
