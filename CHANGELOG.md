@@ -4,6 +4,16 @@
 
 格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+### 新增
+
+- **零起点冷启动**：没有简历、没有任何材料也能开始使用——`workflows/intake.md` 新增「1b. 零起点建库」（访谈式六轮普查代替材料，可中断续跑），AGENTS.md 交互路由新增对应入口
+- **首次建库收尾步骤**：建完库用真实内容替换 `template/resume.html` 并渲染验证，产出第一份标准版简历
+- `methodology/简历方法论.md` 新增「零实习简历」内容策略：区块按素材改名不留空、课程项目按实习规格写、一页是上限不是 KPI
+- `methodology/挖掘问题库.md` B 节新增「降级问法」：用户答「没有」时换更具体的场景再问
+- `workflows/apply.md` 新增空库守卫：profile 无经历时先建库，禁止用模板示例内容投递
+
 ## [1.0.0] - 2026-07-08
 
 ### 新增

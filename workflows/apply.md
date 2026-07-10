@@ -17,6 +17,8 @@
 
 注意 `preferences.md` 中带时效的信息（到岗时间等），过期就先问用户更新。
 
+**空库守卫**：如果 `profile/_index.md` 的经历表只有占位行，且 `profile/experiences/` 下除 `_TEMPLATE.md` 外没有经历文件，立即停下——先带用户走 `workflows/intake.md` 建库（没有简历也能走「零起点建库」访谈）。禁止拿 `template/resume.html` 的示例内容投递。
+
 ## 2. JD 分析（展示给用户）
 
 按方法论的 JD 分析框架输出：硬性门槛比对（逐条 ✓/✗）、高频关键词、加分项、风格信号、**文件命名要求**（如有）。
