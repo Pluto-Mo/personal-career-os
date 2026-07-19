@@ -1,9 +1,15 @@
 # 临时目录
 tmp/
+.career-os/
 
-# 模板的渲染产物（可随时用 scripts/render.ps1 或 render.sh 重新生成）
-template/*.pdf
-template/*.png
+# Starter 模板的渲染产物（可随时重新生成）
+assets/workspace/template/*.pdf
+assets/workspace/template/*.png
+assets/workspace/template/*.docx
+
+# Python helper cache
+__pycache__/
+*.pyc
 
 # Office 锁文件
 ~$*

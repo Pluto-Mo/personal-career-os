@@ -31,7 +31,7 @@
 
 ### 方法论贡献
 
-`methodology/` 下的内容来自实践沉淀，欢迎补充：
+`references/methodology/` 下的内容来自实践沉淀，欢迎补充：
 
 - **简历方法论**：信息卫生排雷、价值翻译公式、量化维度等
 - **风格库**：不同企业性质的写法差异（券商金融 / 大厂 / 国央企 / 外企）
@@ -48,10 +48,11 @@
 #### 提交前检查
 
 - [ ] 跑通脚本验证：
-  - Windows: `pwsh scripts/render.ps1 -Html template/resume.html`
-  - macOS/Linux: `bash scripts/render.sh template/resume.html`
-- [ ] 跑脱敏检查：`bash scripts/check-privacy.sh` 或 `pwsh scripts/check-privacy.ps1`
-- [ ] 如果改动了 `profile/` 或 `template/`，确认仍是模板状态（占位符未被真实信息替换）
+  - Windows: `pwsh scripts/render.ps1 -Html assets/workspace/template/resume.html`
+  - macOS/Linux: `bash scripts/render.sh assets/workspace/template/resume.html`
+- [ ] 用包含 `python-docx` 的文档 Python 运行 `python scripts/export-docx.py assets/workspace/template/resume.html`，并渲染查看生成的 DOCX
+- [ ] 跑脱敏检查：`bash scripts/check-privacy.sh assets/workspace` 或 `pwsh scripts/check-privacy.ps1 -Root assets/workspace`
+- [ ] 如果改动了 `assets/workspace/`，确认仍是模板状态（占位符未被真实信息替换）
 
 #### PR 规范
 
@@ -67,7 +68,7 @@
 
 #### 代码风格
 
-- **Shell 脚本**：兼容 PowerShell 7+ (Windows) 和 Bash (macOS/Linux)，不引入外部依赖（npm / pip 等）
+- **脚本**：兼容 PowerShell 7+ (Windows) 和 Bash (macOS/Linux)，不新增项目级 npm/pip 安装；DOCX 使用宿主 Agent 自带的 `python-docx` 文档运行时
 - **Markdown 文档**：中文为主，代码示例用英文，保持「可执行」特性（Agent 能直接按步骤操作）
 - **文件命名**：Markdown / 文档用中文短名（如 `简历方法论.md`），脚本 / 代码用英文（如 `render.ps1`）
 
@@ -77,7 +78,7 @@
 
 - README 中的错别字、不清晰的表述
 - EXAMPLES.md 中的使用案例（真实场景优先，但需脱敏）
-- AGENTS.md / workflows/*.md 中的执行步骤优化
+- SKILL.md / references/workflows/*.md 中的执行步骤优化
 
 ## 行为准则
 

@@ -40,33 +40,62 @@ $edgeCandidates = @(
 $edge = $edgeCandidates | Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -First 1
 if (-not $edge) { throw '未找到 Microsoft Edge（msedge.exe），无法渲染。' }
 
-# 独立的临时浏览器配置目录，避免与正在运行的 Edge 冲突
-$tmpProfile = Join-Path $env:TEMP 'career-os-edge-profile'
+# 每次渲染使用独立配置目录，避免与正在运行的 Edge 或并行任务冲突
+$pdfProfile = Join-Path $env:TEMP ("career-os-pdf-" + [Guid]::NewGuid().ToString('N'))
+$pngProfile = Join-Path $env:TEMP ("career-os-png-" + [Guid]::NewGuid().ToString('N'))
 
 # Start-Process 不会自动为含空格的参数加引号（本项目路径含空格），统一手动处理
 function Quote-Arg([string]$a) { if ($a -match '\s') { "`"$a`"" } else { $a } }
 
+function Invoke-BrowserRender {
+    param(
+        [string[]]$Arguments,
+        [string]$ExpectedPath,
+        [string]$ProfilePath
+    )
+
+    $allArgs = $baseArgs + @((Quote-Arg "--user-data-dir=$ProfilePath")) + $Arguments
+    $process = Start-Process -FilePath $edge -PassThru -WindowStyle Hidden -ArgumentList $allArgs
+    if (-not $process.WaitForExit(30000)) {
+        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+        $process.WaitForExit()
+        if (-not (Test-Path -LiteralPath $ExpectedPath)) {
+            throw "浏览器渲染超时，且未生成文件：$ExpectedPath"
+        }
+    } elseif ($process.ExitCode -ne 0 -and -not (Test-Path -LiteralPath $ExpectedPath)) {
+        throw "浏览器渲染失败（退出码 $($process.ExitCode)）：$ExpectedPath"
+    }
+}
+
 $baseArgs = @(
     # 注意：本机 Edge 用 --headless=new 会静默失败（exit 0 但不产出文件），必须用 --headless
     '--headless', '--disable-gpu', '--hide-scrollbars',
-    (Quote-Arg "--user-data-dir=$tmpProfile"),
+    '--disable-background-networking', '--disable-component-update',
     '--no-first-run', '--no-default-browser-check'
 )
 
 # ── 渲染 PDF ────────────────────────────────────────────────
-foreach ($f in @($pdfPath, $pngPath)) {
-    if (Test-Path -LiteralPath $f) { Remove-Item -LiteralPath $f -Force }
-}
-Start-Process -FilePath $edge -Wait -WindowStyle Hidden -ArgumentList ($baseArgs + @(
-    '--no-pdf-header-footer', (Quote-Arg "--print-to-pdf=$pdfPath"), (Quote-Arg $fileUrl)
-))
-if (-not (Test-Path -LiteralPath $pdfPath)) { throw 'PDF 渲染失败（未生成文件）。' }
+try {
+    foreach ($f in @($pdfPath, $pngPath)) {
+        if (Test-Path -LiteralPath $f) { Remove-Item -LiteralPath $f -Force }
+    }
+    Invoke-BrowserRender -ExpectedPath $pdfPath -ProfilePath $pdfProfile -Arguments @(
+        '--no-pdf-header-footer', (Quote-Arg "--print-to-pdf=$pdfPath"), (Quote-Arg $fileUrl)
+    )
+    if (-not (Test-Path -LiteralPath $pdfPath)) { throw 'PDF 渲染失败（未生成文件）。' }
 
-# ── 渲染 PNG（A4 比例，2 倍清晰度，适合手机端/微信发送） ────────
-Start-Process -FilePath $edge -Wait -WindowStyle Hidden -ArgumentList ($baseArgs + @(
-    (Quote-Arg "--screenshot=$pngPath"), '--window-size=793,1123', '--force-device-scale-factor=2', (Quote-Arg "$fileUrl`?clean=1")
-))
-if (-not (Test-Path -LiteralPath $pngPath)) { throw 'PNG 渲染失败（未生成文件）。' }
+    # ── 渲染 PNG（A4 比例，2 倍清晰度，适合手机端/微信发送） ────────
+    Invoke-BrowserRender -ExpectedPath $pngPath -ProfilePath $pngProfile -Arguments @(
+        (Quote-Arg "--screenshot=$pngPath"), '--window-size=793,1123', '--force-device-scale-factor=2', (Quote-Arg "$fileUrl`?clean=1")
+    )
+    if (-not (Test-Path -LiteralPath $pngPath)) { throw 'PNG 渲染失败（未生成文件）。' }
+} finally {
+    foreach ($profile in @($pdfProfile, $pngProfile)) {
+        if (Test-Path -LiteralPath $profile) {
+            Remove-Item -LiteralPath $profile -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
 
 # ── 校验页数（一页纸硬约束） ─────────────────────────────────
 $raw = [Text.Encoding]::GetEncoding('ISO-8859-1').GetString([IO.File]::ReadAllBytes($pdfPath))
