@@ -3,15 +3,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/Pluto-Mo/personal-career-os?style=social)](https://github.com/Pluto-Mo/personal-career-os)
 
-**一套跑在 AI Agent（Claude Code / Codex / Cursor 等）里的个人求职操作系统。**
+**一套跑在 AI Agent（Claude Code / Codex / workbuddy/zcode 等）里的个人求职操作系统。**
 
 核心思路一句话：**经历只沉淀一次，之后每个 JD 自动调用**——你不再维护 N 版简历，而是维护一个关于你自己的结构化记忆库，每次投递由 agent 现场定制出一页简历 + 投递邮件 + 全部配套材料，复制粘贴即可发送。
 
 > A job-application OS that runs inside coding agents: build a structured memory of your experiences once, then have the agent tailor a one-page resume, cover email, and full application kit for every JD. Chinese-first.
 
-现在它以一个纯 Agent Skill 的形式交付：从零建档或导入现有简历，研究职位与 JD，并生成 Word、PDF、图片和投递正文。
-
-它不是自主 Agent、网站、CLI 或 harness。仓库里只有 `SKILL.md`、工作流、方法论、空白模板和可选渲染脚本。
 
 ## 一句话开始
 
