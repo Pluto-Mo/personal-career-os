@@ -2,12 +2,12 @@
 #
 # 用法:
 #   pwsh scripts/render.ps1 -Html template/resume.html
-#   pwsh scripts/render.ps1 -Html "applications/2026-07-05-某公司-某岗位/resume.html" -Name "城市-学校-姓名-专业-年级"
+#   pwsh scripts/render.ps1 -Html "applications/2026-07-05-某公司-某岗位/resume.html" -Name "学校-姓名-专业-年级"
 #
 # 参数:
 #   -Html     输入的 HTML 文件（必填）
 #   -OutDir   输出目录（默认与 HTML 同目录）
-#   -Name     输出文件基名（默认与 HTML 同名；投递时按「城市-学校-姓名-专业-年级」命名）
+#   -Name     输出文件基名（不含扩展名；applications/ 下必填，按 JD 要求命名）
 #   -MaxPages 页数上限（默认 1，超出则退出码 1）
 #
 # 依赖: Microsoft Edge（Windows 自带），无需安装任何东西。
@@ -26,7 +26,18 @@ $htmlPath = (Resolve-Path -LiteralPath $Html).Path
 if (-not $OutDir) { $OutDir = Split-Path -Parent $htmlPath }
 if (-not (Test-Path -LiteralPath $OutDir)) { New-Item -ItemType Directory -Force -Path $OutDir | Out-Null }
 $OutDir = (Resolve-Path -LiteralPath $OutDir).Path
-if (-not $Name) { $Name = [IO.Path]::GetFileNameWithoutExtension($htmlPath) }
+if (-not $Name) {
+    if ($htmlPath -match '[\\/]applications[\\/]') {
+        throw '投递产物必须显式传入 -Name（按 JD 命名），禁止默认生成 resume.pdf。'
+    }
+    $Name = [IO.Path]::GetFileNameWithoutExtension($htmlPath)
+}
+if ($Name -in @('.', '..') -or $Name.IndexOfAny([IO.Path]::GetInvalidFileNameChars()) -ge 0 -or $Name.Contains('/') -or $Name.Contains('\')) {
+    throw "输出基名不能包含路径或操作系统禁用字符: $Name"
+}
+if ($Name -match '\.(pdf|png)$') {
+    throw "输出基名不要包含 .pdf/.png 扩展名: $Name"
+}
 
 $pdfPath = Join-Path $OutDir "$Name.pdf"
 $pngPath = Join-Path $OutDir "$Name.png"

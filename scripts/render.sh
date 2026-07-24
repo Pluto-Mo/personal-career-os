@@ -3,6 +3,7 @@
 #
 # 用法:
 #   bash scripts/render.sh <input.html> [输出基名] [页数上限=1]
+#   applications/ 下的投递产物必须传输出基名，且不含扩展名
 #
 # 依赖: Chrome / Chromium / Edge 任一（无需其他安装）
 set -euo pipefail
@@ -14,7 +15,26 @@ MAX_PAGES="${3:-1}"
 # ── 定位输入输出 ──────────────────────────────────────────────
 HTML_ABS="$(cd "$(dirname "$HTML")" && pwd)/$(basename "$HTML")"
 OUT_DIR="$(dirname "$HTML_ABS")"
-[ -z "$NAME" ] && NAME="$(basename "$HTML_ABS" .html)"
+if [ -z "$NAME" ]; then
+    case "$HTML_ABS" in
+        */applications/*)
+            echo "错误: 投递产物必须显式传入输出基名（按 JD 命名），禁止默认生成 resume.pdf" >&2
+            exit 2
+            ;;
+        *) NAME="$(basename "$HTML_ABS" .html)" ;;
+    esac
+fi
+
+case "$NAME" in
+    .|..|*/*|*\\*)
+        echo "错误: 输出基名不能包含路径或路径分隔符: $NAME" >&2
+        exit 2
+        ;;
+    *.pdf|*.PDF|*.png|*.PNG)
+        echo "错误: 输出基名不要包含 .pdf/.png 扩展名: $NAME" >&2
+        exit 2
+        ;;
+esac
 PDF="$OUT_DIR/$NAME.pdf"
 PNG="$OUT_DIR/$NAME.png"
 
