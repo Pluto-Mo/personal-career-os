@@ -2,11 +2,14 @@
 # 用途：在 push 到公开仓库前检查是否有敏感信息泄漏
 
 param(
+    [string]$Root = ".",
     [switch]$Verbose
 )
 
 $ErrorCount = 0
 $WarningCount = 0
+
+Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction SilentlyContinue
 
 Write-Host "=== Personal Career OS 脱敏检查 ===" -ForegroundColor Cyan
 Write-Host ""
@@ -33,12 +36,12 @@ $Patterns = @{
 }
 
 # 定义需要检查的目录和文件
+$RootPath = (Resolve-Path -LiteralPath $Root).Path
 $CheckPaths = @(
-    "profile/",
-    "template/",
-    "applications/",
-    "README.md",
-    "AGENTS.md"
+    (Join-Path $RootPath "profile"),
+    (Join-Path $RootPath "template"),
+    (Join-Path $RootPath "applications"),
+    (Join-Path $RootPath "archive")
 )
 
 # 定义排除模式
@@ -98,6 +101,27 @@ function Test-SensitiveContent {
     return $FileHasIssues
 }
 
+function Get-DocxText {
+    param([string]$FilePath)
+
+    $Archive = [IO.Compression.ZipFile]::OpenRead($FilePath)
+    try {
+        $Parts = @("word/document.xml", "word/comments.xml", "docProps/core.xml")
+        $Chunks = @()
+        foreach ($Part in $Parts) {
+            $Entry = $Archive.GetEntry($Part)
+            if (-not $Entry) { continue }
+            $Reader = [IO.StreamReader]::new($Entry.Open())
+            try { $Chunks += $Reader.ReadToEnd() } finally { $Reader.Dispose() }
+        }
+        $XmlText = $Chunks -join " "
+        $PlainText = [regex]::Replace($XmlText, '<[^>]+>', ' ')
+        return [Net.WebUtility]::HtmlDecode($PlainText)
+    } finally {
+        $Archive.Dispose()
+    }
+}
+
 # 检查特定占位符是否被替换
 function Test-PlaceholderReplaced {
     param(
@@ -120,6 +144,7 @@ function Test-PlaceholderReplaced {
 
 # 遍历检查
 Write-Host "检查中..." -ForegroundColor Cyan
+Write-Host "工作区: $RootPath" -ForegroundColor Gray
 $FilesChecked = 0
 $TemplateFiles = @()
 $IssueFiles = @()
@@ -130,11 +155,15 @@ foreach ($Path in $CheckPaths) {
 
         foreach ($File in $Files) {
             $FilesChecked++
-            $Content = Get-Content $File.FullName -Raw -ErrorAction SilentlyContinue
+            if ($File.Extension -ieq ".docx") {
+                $Content = Get-DocxText -FilePath $File.FullName
+            } else {
+                $Content = Get-Content $File.FullName -Raw -ErrorAction SilentlyContinue
+            }
 
             if (-not $Content) { continue }
 
-            $RelPath = $File.FullName.Replace((Get-Location).Path + "\", "")
+            $RelPath = [IO.Path]::GetRelativePath($RootPath, $File.FullName)
 
             # 检查是否仍是模板状态
             $IsTemplate = Test-PlaceholderReplaced -FilePath $RelPath -Content $Content

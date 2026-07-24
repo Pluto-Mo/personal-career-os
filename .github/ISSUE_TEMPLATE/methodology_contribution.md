@@ -1,6 +1,6 @@
 ---
 name: 方法论贡献
-about: 补充或改进 methodology/ 下的内容
+about: 补充或改进 references/methodology/ 下的内容
 title: '[Methodology] '
 labels: methodology
 assignees: ''

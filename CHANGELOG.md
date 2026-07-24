@@ -8,11 +8,27 @@
 
 ### 新增
 
-- **零起点冷启动**：没有简历、没有任何材料也能开始使用——`workflows/intake.md` 新增「1b. 零起点建库」（访谈式六轮普查代替材料，可中断续跑），AGENTS.md 交互路由新增对应入口
+- 根目录 `SKILL.md`：仓库本身可作为 `personal-career-os` Skill 安装和自然语言调用
+- `agents/openai.yaml`：Skill 列表与默认调用提示元数据
+- 首次调用自动从 `assets/workspace/` 初始化本地 `.career-os/` 工作区
+- 首次安装后的简短入门指南：明确“从零建档 / 导入简历”两个入口，并提示 JD 研究、深挖、导出和台账等自然语言用法
+- `references/workflows/export.md` 与 `scripts/export-docx.py`：从定稿 HTML 生成原生可编辑 DOCX，并与 PDF/PNG 共用同一份内容
+- 完整投递包默认包含 HTML、DOCX、PDF、PNG、投递正文、JD 分析和备注
+- 隐私检查现在会解压扫描 DOCX 正文、批注和核心元数据
+
+- **零起点冷启动**：没有简历、没有任何材料也能开始使用——`references/workflows/intake.md` 新增「1b. 零起点建库」（访谈式六轮普查代替材料，可中断续跑），`SKILL.md` 新增对应自然语言入口
 - **首次建库收尾步骤**：建完库用真实内容替换 `template/resume.html` 并渲染验证，产出第一份标准版简历
-- `methodology/简历方法论.md` 新增「零实习简历」内容策略：区块按素材改名不留空、课程项目按实习规格写、一页是上限不是 KPI
-- `methodology/挖掘问题库.md` B 节新增「降级问法」：用户答「没有」时换更具体的场景再问
-- `workflows/apply.md` 新增空库守卫：profile 无经历时先建库，禁止用模板示例内容投递
+- `references/methodology/简历方法论.md` 新增「零实习简历」内容策略：区块按素材改名不留空、课程项目按实习规格写、一页是上限不是 KPI
+- `references/methodology/挖掘问题库.md` B 节新增「降级问法」：用户答「没有」时换更具体的场景再问
+- `references/workflows/apply.md` 新增空库分流：研究继续、投递先建档，禁止用模板示例内容投递
+
+### 变更
+
+- 工作流与方法论移入 `references/`，空白用户空间移入 `assets/workspace/`
+- 移除 Claude 专用命令包装；`SKILL.md` 成为唯一运行入口
+- “研究一下”默认只读，明确要求准备投递后才生成文件
+- 空库不再阻断只读 JD 研究；只有准备投递时才要求先建档
+- 零起点首次提问改为每轮 3-5 问，电话和邮箱推迟到生成简历时再补
 
 ## [1.0.0] - 2026-07-08
 
