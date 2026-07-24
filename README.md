@@ -7,6 +7,8 @@
 
 核心思路一句话：**经历只沉淀一次，之后每个 JD 自动调用**——你不再维护 N 版简历，而是维护一个关于你自己的结构化记忆库，每次投递由 agent 现场定制出一页简历 + 投递邮件 + 全部配套材料，复制粘贴即可发送。
 
+![经历只沉淀一次，之后按不同 JD 随时调用](assets/career-os-illustrations/01-experience-library.png)
+
 > A job-application OS that runs inside coding agents: build a structured memory of your experiences once, then have the agent tailor a one-page resume, cover email, and full application kit for every JD. Chinese-first.
 
 现在它以一个纯 Agent Skill 的形式交付：从零建档或导入现有简历，研究职位与 JD，并生成 Word、PDF、图片和投递正文。
@@ -102,6 +104,8 @@ name: personal-career-os
 
 Skill 只准备本地材料，不会代替用户发送邮件、提交申请或推送个人数据。
 
+![把真实经历翻译为岗位语言、数据证据和 JD 对齐材料](assets/career-os-illustrations/02-industry-translation.png)
+
 ## Skill 结构
 
 ```text
@@ -131,6 +135,8 @@ notes.md
 ```
 
 生成 PDF/PNG 时需要本机可用的 Chrome、Chromium 或 Edge；生成和校验 DOCX 时由 Agent 使用自己的文档运行时。Codex 自带所需文档依赖，最终用户不需要手动安装 Python 包。缺少某种渲染能力时，Agent 必须明确标记未验证的格式，不能拿损坏的转换文件冒充成品。
+
+![JD 驱动生成 PDF、Word、图片和投递正文，并按要求命名](assets/career-os-illustrations/03-one-stop-delivery.png)
 
 ## 隐私
 
