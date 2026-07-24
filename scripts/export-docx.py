@@ -43,16 +43,18 @@ VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
 # Default A4 resume style contract. Keep these values synchronized with
-# template/resume.html and methodology/默认简历版式规范.md.
+# template/resume.html and references/methodology/默认简历版式规范.md.
 PAGE_WIDTH_MM = 210
 PAGE_HEIGHT_MM = 297
 MARGIN_TOP_MM = 9
 MARGIN_BOTTOM_MM = 8
 MARGIN_LEFT_MM = 7.5
 MARGIN_RIGHT_MM = 7.5
-HEADER_COLUMNS_MM = (34, 127, 34)
+# Keep a 2 mm safety allowance around the 40 mm school mark. Word-compatible
+# renderers can otherwise clip an image that exactly matches its cell width.
+HEADER_COLUMNS_MM = (42, 113, 40)
 ENTRY_COLUMNS_MM = (154, 41)
-LOGO_BOX_MM = (32, 18)
+LOGO_BOX_MM = (40, 16)
 PORTRAIT_BOX_MM = (20, 27)
 LATIN_FONT = "Times New Roman"
 EAST_ASIA_FONT = "SimSun"
@@ -325,6 +327,11 @@ def configure_styles(document) -> None:
     contact_style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
     contact_style.paragraph_format.keep_with_next = True
 
+    availability_style = paragraph_style("Resume Availability", size=BODY_SIZE_PT)
+    availability_style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    availability_style.paragraph_format.space_before = Pt(1)
+    availability_style.paragraph_format.keep_with_next = True
+
     section_style = paragraph_style("Resume Section", size=SECTION_SIZE_PT, bold=True)
     section_style.paragraph_format.space_before = Pt(5.5)
     section_style.paragraph_format.space_after = Pt(3)
@@ -368,18 +375,29 @@ def resolve_local_image(node: Node | None, html_path: Path) -> Path | None:
     return path
 
 
-def assert_standard_image(path: Path, width_mm: float, height_mm: float, label: str) -> None:
+def image_ratio(path: Path) -> float:
     image = DocxImage.from_file(str(path))
     if image.width <= 0 or image.height <= 0:
         raise ValueError(f"无法读取图片尺寸: {path}")
-    actual_ratio = image.width / image.height
+    return image.width / image.height
+
+
+def assert_standard_portrait(path: Path) -> None:
+    actual_ratio = image_ratio(path)
+    width_mm, height_mm = PORTRAIT_BOX_MM
     target_ratio = width_mm / height_mm
     if abs(actual_ratio / target_ratio - 1) > 0.01:
-        kind = "portrait" if label == "证件照" else "logo"
         raise ValueError(
-            f"{label}尚未转换为 {width_mm:g} x {height_mm:g} mm 固定画布。"
-            f"请先运行 scripts/prepare-resume-image.py {kind}。"
+            f"证件照尚未转换为 {width_mm:g} x {height_mm:g} mm 固定画布。"
+            "请先运行 scripts/prepare-resume-image.py portrait。"
         )
+
+
+def fit_image_box(path: Path, maximum_width_mm: float, maximum_height_mm: float) -> tuple[float, float]:
+    ratio = image_ratio(path)
+    if ratio >= maximum_width_mm / maximum_height_mm:
+        return maximum_width_mm, maximum_width_mm / ratio
+    return maximum_height_mm * ratio, maximum_height_mm
 
 
 def add_header(document, page: Node, html_path: Path, expected: list[str]) -> None:
@@ -394,24 +412,24 @@ def add_header(document, page: Node, html_path: Path, expected: list[str]) -> No
     table.rows[0].height = Mm(28)
     table.rows[0].height_rule = WD_ROW_HEIGHT_RULE.AT_LEAST
     for cell in table.rows[0].cells:
-        cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
+        cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
         set_cell_margins(cell)
 
     logo = resolve_local_image(find_class(page, "school-logo"), html_path)
     portrait = resolve_local_image(find_class(page, "portrait"), html_path)
     if logo:
-        assert_standard_image(logo, *LOGO_BOX_MM, "学校校徽")
+        logo_width, logo_height = fit_image_box(logo, *LOGO_BOX_MM)
         paragraph = table.cell(0, 0).paragraphs[0]
         paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
         paragraph.add_run().add_picture(
-            str(logo), width=Mm(LOGO_BOX_MM[0]), height=Mm(LOGO_BOX_MM[1])
+            str(logo), width=Mm(logo_width), height=Mm(logo_height)
         )
     else:
         # Keep an explicit paragraph payload so Word-compatible renderers do
         # not collapse the optional left column.
         table.cell(0, 0).paragraphs[0].add_run("\u00a0")
     if portrait:
-        assert_standard_image(portrait, *PORTRAIT_BOX_MM, "证件照")
+        assert_standard_portrait(portrait)
         paragraph = table.cell(0, 2).paragraphs[0]
         paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         paragraph.add_run().add_picture(
@@ -436,6 +454,13 @@ def add_header(document, page: Node, html_path: Path, expected: list[str]) -> No
         expected.extend(contact_items)
         paragraph = center.add_paragraph(style="Resume Contact")
         run = paragraph.add_run("｜".join(contact_items))
+        set_run_fonts(run)
+
+    availability = text_of(find_class(page, "availability"))
+    if availability:
+        expected.append(availability)
+        paragraph = center.add_paragraph(style="Resume Availability")
+        run = paragraph.add_run(availability)
         set_run_fonts(run)
 
     spacer = document.add_paragraph()
