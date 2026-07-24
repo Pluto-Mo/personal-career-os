@@ -44,10 +44,10 @@ cd personal-career-os
 | 生成完就结束，越用越陌生 | **沉淀闭环**：投递中你确认的每个新事实自动回写经历库，越用越懂你 |
 | 关键词堆砌讨好机器筛 | **价值翻译方法论**：把「我干了什么」翻译成「我为什么对你有用」，关键词对齐但不堆砌 |
 | 为了好看编数字、拔头衔 | **保真铁律**：每个字可溯源到事实清单；缺数据就问你，不确认就不写——面试追问三层不露馅 |
-| 「建议控制在一页内」 | **一页 A4 是硬校验**：渲染管线数 PDF 页数，超页直接报错，agent 删内容重渲而不是缩字号蒙混 |
-| 只出一份简历 | **全套投递材料**：PDF + 高清 PNG（微信/手机端投递用）+ 邮件主题正文 + 作品集链接 + 投递台账 |
+| 「建议控制在一页内」 | **一页 A4 是硬校验**：DOCX、PDF、PNG 分别验收，任一格式超页都删内容重导出，而不是缩字号蒙混 |
+| 只出一份简历 | **全套投递材料**：可编辑 DOCX + PDF + 与 PDF 同源的高清 PNG + 邮件主题正文 + 作品集链接 + 投递台账 |
 | **生成后手动改文件名**（每个 JD 命名要求不一样） | **自动按 JD 命名要求生成**：JD 分析自动提取命名格式（如「姓名-学校-专业」），生成时直接按要求命名，不用改来改去 |
-| 绑定某个网站或某家模型 | **Agent 通用**：规范写在 `AGENTS.md`（开放标准），Claude Code、Codex、Cursor 等都能直接开工；渲染只依赖系统自带的 Edge/Chrome |
+| 绑定某个网站或某家模型 | **Agent 通用**：规范写在 `AGENTS.md`（开放标准），Claude Code、Codex、Cursor 等都能直接开工；Agent 负责调用浏览器与文档运行时完成渲染 |
 | 交互靠记命令 | **说人话就行**：粘 JD 就是投递，说「我有段新经历」就是入库，零记忆成本 |
 | 默认你手上已有一份简历 | **零起点冷启动**：没有简历也能开始——访谈式普查把「不知道算经历」的素材挖出来，产出第一份标准版简历 |
 
@@ -60,7 +60,8 @@ cd personal-career-os
 ### 0. 准备
 
 - 任意支持 `AGENTS.md` 规范的 AI agent（Claude Code、Codex、Cursor 等）
-- Chrome / Edge 浏览器（渲染 PDF/PNG 用，Windows/macOS 一般自带，无需安装依赖）
+- Chrome / Edge 浏览器（渲染 PDF）
+- 支持 `python-docx`、DOCX 渲染和 PDF 栅格化的 Agent 文档运行时（Codex 等会自动提供，不要求最终用户手动配置）
 
 ```bash
 git clone https://github.com/Pluto-Mo/personal-career-os.git
@@ -88,7 +89,7 @@ cd personal-career-os
 
 > 帮我投这个岗：〔JD 全文〕
 
-agent 会：分析 JD（硬性门槛逐条比对 + 关键词提取）→ 提出用哪几段经历、每段打什么角度（跟你确认）→ 生成一页简历渲染成 PDF/PNG → 写好邮件主题和正文 → 记入台账。产物在 `applications/日期-公司-岗位/`，你只需要复制粘贴发送。
+agent 会：分析 JD（硬性门槛逐条比对 + 关键词提取）→ 提出用哪几段经历、每段打什么角度（跟你确认）→ 让你选择是否放证件照和校徽 → 按固定版式生成一页 DOCX/PDF/PNG → 写好邮件主题和正文 → 记入台账。证件照只能由你上传；校徽可由你上传，也可在你明确要求后由 agent 搜索候选供你确认。产物在 `applications/日期-公司-岗位/`，你只需要复制粘贴发送。
 
 **有了新经历**（新实习、新比赛、新证书）：
 
@@ -109,9 +110,13 @@ pwsh scripts/render.ps1 -Html template/resume.html
 ```bash
 # macOS / Linux
 bash scripts/render.sh template/resume.html
+
+# DOCX（使用 Agent 提供的文档 Python）
+python scripts/export-docx.py template/resume.html template/resume.docx
+python scripts/verify-docx.py template/resume.docx --output-dir tmp/docx-qa
 ```
 
-输出同目录 PDF + PNG 并校验一页纸。`resume.html` 用浏览器打开可直接预览，超一页时页面顶部出红色警告条。
+`render` 脚本输出同目录 PDF + PNG；`export-docx.py` 输出 DOCX。PNG 从最终 PDF 栅格化，避免浏览器截图与打印版式不一致；DOCX 必须再由 Agent 渲染成逐页图片检查。三种最终格式都要求恰好一页。
 
 ---
 
@@ -126,9 +131,9 @@ personal-career-os/
 │   └── experiences/     ← 一段经历一个文件：事实清单 + 现成表述 + 待挖掘
 │       └── _TEMPLATE.md ← 格式模板（agent 参考用，不要删除）
 ├── methodology/         ← 方法论：简历方法论 / 风格库（按企业性质）/ 岗位速查（12 个岗位规范）/ 挖掘问题库
-├── workflows/           ← 三大工作流的执行手册：apply（投递）/ intake（沉淀）/ dig（深挖）
+├── workflows/           ← 工作流执行手册：apply（投递）/ intake（沉淀）/ dig（深挖）/ export（导出）
 ├── template/resume.html ← 唯一简历模板 = 你的标准版简历（A4 一页，自带超页警告）
-├── scripts/             ← render.ps1 / render.sh：HTML → PDF + PNG + 一页硬校验
+├── scripts/             ← export-docx.py + render.ps1/render.sh：HTML → DOCX/PDF/PNG + 一页硬校验
 └── applications/        ← 每次投递一个目录（简历 + JD 分析 + 邮件 + 笔记）+ 台账 _log.md
 ```
 
@@ -204,7 +209,7 @@ git commit -m "backup"
 - **方法论贡献**：[创建 Issue](../../issues/new?template=methodology_contribution.md)
 - **代码贡献**：阅读 [贡献指南](CONTRIBUTING.md) 后提交 PR
 
-查看 [使用案例](docs/EXAMPLES.md) 了解三大工作流的完整对话示例。
+查看 [使用案例](docs/EXAMPLES.md) 了解核心工作流的完整对话示例。
 
 ---
 
