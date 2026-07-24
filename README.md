@@ -18,7 +18,7 @@
 
 在一个新 Agent 里直接说：
 
-> 安装并启动 GitHub 上的 `Pluto-Mo/personal-career-os`。
+> 安装并启动 `Pluto-Mo/personal-career-os`。
 
 Agent 应识别这是一个根目录即 Skill 的仓库，完成整包获取、读取 `SKILL.md` 并只展示功能指南。此时它不初始化个人空间、不读取材料、不提问，也不自动开始工作。用户不需要先 clone、不需要知道 Skill 路径或名称、不需要记命令，也不需要配置运行时。
 
